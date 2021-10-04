@@ -18,6 +18,17 @@ namespace RandomPasscode.Controllers
         {
             _logger = logger;
         }
+        private string GeneratePasscode(int size)
+        {
+            Random rand = new Random();
+            string alphaNumeric = "ABCDEFGHIJKLMNOPQRSTUV0123456789";
+            string secretCode = "";
+            for (int i = 0; i < size; i++)
+            {
+                secretCode += alphaNumeric[rand.Next(alphaNumeric.Length)];
+            }
+            return secretCode;
+        }
 
         [HttpGet ("")]
         public IActionResult Index()
@@ -26,6 +37,11 @@ namespace RandomPasscode.Controllers
             {
                 HttpContext.Session.SetInt32("count", 0);
             }
+            if (HttpContext.Session.GetString("passcode") == null)
+            {
+                HttpContext.Session.SetString("passcode", "Generate a passcode!");
+            }
+            ViewBag.Code = HttpContext.Session.GetString("passcode");
             ViewBag.Count = HttpContext.Session.GetInt32("count");
             return View();
         }
@@ -37,6 +53,7 @@ namespace RandomPasscode.Controllers
             int? count = HttpContext.Session.GetInt32("count");
             count++;
             HttpContext.Session.SetInt32("count", (int)count);
+            HttpContext.Session.SetString("passcode", GeneratePasscode(14));
             return RedirectToAction("Index");
         }
 
